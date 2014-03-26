@@ -12,7 +12,45 @@ import org.apache.hadoop.conf.*;
 import org.apache.hadoop.io.*;
 import org.apache.hadoop.mapred.*;
 
-public class MatchingString {
+public class WordCount {
+    public static class valueFormat implements Writable {
+        public Long offset;
+        public String fileName;
+
+        public valueFormat(Long offset, String fileName){
+            this.offset=offset;
+            this.fileName=fileName;
+        }
+        public valueFormat(){
+            this.offset=Long.valueOf(0);
+            this.fileName=null;
+        }
+        @Override
+        public String toString() {
+            return this.fileName + "\t" + this.offset;
+        }
+        public void merge(valueFormat other) {
+
+            this.offset +=other.offset;
+
+        }
+
+
+
+        @Override
+        public void write(DataOutput dataOutput) throws IOException {
+            //To change body of implemented methods use File | Settings | File Templates.
+            dataOutput.writeLong(offset);
+            dataOutput.writeChars(fileName);
+        }
+
+        @Override
+        public void readFields(DataInput dataInput) throws IOException {
+            //To change body of implemented methods use File | Settings | File Templates.
+            offset=dataInput.readLong();
+            fileName=dataInput.readUTF();
+        }
+    }
     public static class WholeFileInputFormat extends FileInputFormat<NullWritable, Text> {
 
         @Override
@@ -91,10 +129,11 @@ public class MatchingString {
 
     }
 
-    public static class Map extends MapReduceBase implements Mapper<NullWritable, Text, Text, IntWritable > {
+    public static class Map extends MapReduceBase implements Mapper<NullWritable, Text, Text, valueFormat > {
         private File stringListFile;
         private Text keyOut = new Text();
-        private IntWritable valueOut = new IntWritable(1);
+        //private IntWritable valueOut = new IntWritable(1);
+        private valueFormat valueOut = new valueFormat();
         private String currentFile;
 
         @Override
@@ -103,7 +142,7 @@ public class MatchingString {
         }
 
         @Override
-        public void map(NullWritable key, Text value, OutputCollector<Text, IntWritable> output, Reporter reporter) throws IOException {
+        public void map(NullWritable key, Text value, OutputCollector<Text, valueFormat> output, Reporter reporter) throws IOException {
 
 
             // Debug
@@ -121,7 +160,10 @@ public class MatchingString {
                 while ( !m.hitEnd() ) {
                     if (m.find() ) {
                         keyOut.set(line);
-                        System.out.println("map"+" "+keyOut+" "+line);
+                        valueOut.fileName = currentFile;
+                        valueOut.offset=Long.valueOf(m.end()-line.length());
+
+                        System.out.println("map"+" "+keyOut+" "+valueOut.fileName+" "+valueOut.offset);
                         output.collect(keyOut, valueOut);
 
                     }
@@ -131,25 +173,31 @@ public class MatchingString {
             linereader.close();
         }
     }
-    public static class Reduce extends MapReduceBase implements Reducer<Text, IntWritable, Text, IntWritable> {
-        public void reduce(Text key, Iterator<IntWritable> values, OutputCollector<Text, IntWritable> output, Reporter reporter) throws IOException {
-            int sum = 0;
-            while (values.hasNext()) {
-                sum += values.next().get();
+    public static class Reduce extends MapReduceBase implements Reducer<Text, valueFormat, Text, valueFormat> {
+        valueFormat outValue = new valueFormat();
+        public void reduce(Text key, Iterator<valueFormat> values, OutputCollector<Text, valueFormat> output, Reporter reporter) throws IOException {
+            //  int sum = 0;
+            System.out.println("at reduce");
+            //String outvalue = "time";
+            StringBuilder builder = new StringBuilder();
+            while (values.hasNext()){
+                     System.out.println(outValue.fileName);
+                     outValue.merge(values.next());
             }
-            output.collect(key, new IntWritable(sum));
-            System.out.print("reduce" + key.toString());
+            output.collect(key, outValue);
         }
+
+
     }
 
 
 
     public static void main(String[] args) throws Exception {
-        JobConf conf = new JobConf(MatchingString.class);
+        JobConf conf = new JobConf(WordCount.class);
         conf.setJobName("wordcount");
 
         conf.setOutputKeyClass(Text.class);
-        conf.setOutputValueClass(IntWritable.class);
+        conf.setOutputValueClass(valueFormat.class);
 
         conf.setMapperClass(Map.class);
         conf.setCombinerClass(Reduce.class);
