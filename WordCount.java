@@ -11,62 +11,76 @@ import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.conf.*;
 import org.apache.hadoop.io.*;
 import org.apache.hadoop.mapred.*;
+import org.apache.hadoop.util.*;
 
 public class WordCount {
-    public static class valueFormat implements Writable {
-        public Long offset;
+    public static class valueFormat implements Writable{
+        public long offset;
         public String fileName;
 
         public valueFormat(Long offset, String fileName){
             this.offset=offset;
             this.fileName=fileName;
+
         }
         public valueFormat(){
             this.offset=Long.valueOf(0);
             this.fileName=null;
         }
-        @Override
-        public String toString() {
-            return "("+this.fileName + " , " + this.offset+")";
+        public String getFileName() {
+            return fileName;
         }
 
-
-
-
+        public long getOffset() {
+            return offset;
+        }
+        @Override
+        public String toString() {
+            return "("+this.fileName + " " + this.offset+")";
+        }
         @Override
         public void write(DataOutput dataOutput) throws IOException {
             //To change body of implemented methods use File | Settings | File Templates.
-            System.out.println("write"+offset+fileName);
-          /*  for(int i=0; i<offset.toString().length();i++){
-                dataOutput.writeChar(offset.toString().charAt(i));
+
+            String offsetStr = String.valueOf(offset);
+            for(int j=0; j<offsetStr.length(); j++) {
+                dataOutput.write( offsetStr.charAt(j) );
+            }
+
+            dataOutput.writeChar(',');
+
+            for(int j=0; j<fileName.length(); j++) {
+                dataOutput.write(fileName.charAt(j));
+            }
+
+            /*
+            //System.out.println("write"+offset+fileName);
+            for(int i=0;i<offset.toString().length();j++){
+
                 System.out.print(offset.toString().charAt(i));
+                dataOutput.writeChar(offset.toString().charAt(i));
                 if(i==(offset.toString().length()-1)){
                     dataOutput.writeChar(',');
                     System.out.print(',');
                 }
-            }   */
-            dataOutput.writeLong(offset);
-
-            /*for (int j=0;j<fileName.length();j++){
-                dataOutput.writeChar(fileName.charAt(j));
+            }
+            for(int j=0;j<fileName.length();j++){
                 System.out.print(fileName.charAt(j));
-            }  */
-            dataOutput.writeChars(fileName);
+                dataOutput.writeChar(fileName.charAt(j));
+            }
+            //dataOutput.writeLong(offset);
+            //dataOutput.writeChars(fileName);
+            */
         }
 
         @Override
         public void readFields(DataInput dataInput) throws IOException {
-            //To change body of implemented methods use File | Settings | File Templates.
-            //String temp;
-           // String[] temp2 =new String[2];
-           // temp=dataInput.readLine();
-            //temp2=temp.split(",");
-            //offset=(long)Integer.parseInt(temp2[0]);
-            offset=dataInput.readLong();
-            System.out.print(offset.toString());
-            //fileName=temp2[1];
-            fileName=dataInput.readUTF();
-            System.out.println(fileName);
+            String line = dataInput.readLine();
+            System.out.println("ReadField, in line: " + line); // debug
+            String[] rawIns = line.split(",");
+            System.out.println("value:" + rawIns[1] + "-- offset" + rawIns[0]);
+            this.offset = (long) Integer.parseInt(rawIns[0]);
+            this.fileName = rawIns[1];
         }
     }
     public static class WholeFileInputFormat extends FileInputFormat<NullWritable, Text> {
@@ -110,7 +124,7 @@ public class WordCount {
                     IOUtils.readFully(in, contents, 0, contents.length);
                     String contentString = new String(contents);
                     value.set(contentString);
-                    // System.out.print("next"+contentString);
+                    System.out.print("next"+contentString);
                 } finally {
                     IOUtils.closeStream(in);
                 }
@@ -150,8 +164,8 @@ public class WordCount {
     public static class Map extends MapReduceBase implements Mapper<NullWritable, Text, Text, valueFormat > {
         private File stringListFile;
         private Text keyOut = new Text();
-        //private IntWritable valueOut = new IntWritable(1);
-        private valueFormat valueOut = new valueFormat();
+        valueFormat valueOut = new valueFormat();
+        // private IntWritable valueOut = new IntWritable(1);
         private String currentFile;
 
         @Override
@@ -164,7 +178,7 @@ public class WordCount {
 
 
             // Debug
-            // System.out.println(key + ":" + value +":" + value.getLength());
+            System.out.println(key + ":" + value +":" + value.getLength());
 
             // Get name
             currentFile = ((FileSplit)reporter.getInputSplit()).getPath().getName();
@@ -178,9 +192,8 @@ public class WordCount {
                 while ( !m.hitEnd() ) {
                     if (m.find() ) {
                         keyOut.set(line);
-                        valueOut.fileName = currentFile;
                         valueOut.offset=Long.valueOf(m.end()-line.length());
-
+                        valueOut.fileName=currentFile;
                         System.out.println("map"+" "+keyOut+" "+valueOut.fileName+" "+valueOut.offset);
                         output.collect(keyOut, valueOut);
 
@@ -188,30 +201,32 @@ public class WordCount {
                 }
 
             }
-            linereader.close();
+
         }
     }
-    public static class Reduce extends MapReduceBase implements Reducer<Text, valueFormat, Text, valueFormat> {
+    public static class Reduce extends MapReduceBase implements Reducer<Text, valueFormat, Text, Text> {
+        public void reduce(Text key, Iterator<valueFormat> values, OutputCollector<Text, Text> output, Reporter reporter) throws IOException {
+            StringBuilder sb =new StringBuilder();
+            Text finalput = new Text();
+            while (values.hasNext()) {
+                //curValue = values.next();
+                sb.append('(');
+                sb.append(values.next().getOffset());
+                sb.append(',');
+                sb.append(values.next().getFileName());
+                sb.append(") ");
 
-        valueFormat outValue = new valueFormat();
+                // if sb.length more than limit , collect once
+                if(sb.length() > 1048576) {
+                    // Debug
+                    System.out.println("Reduce Output: " + key + "<>" + sb.toString());
 
-        public void reduce(Text key, Iterator<valueFormat> values, OutputCollector<Text, valueFormat> output, Reporter reporter) throws IOException {
-            //  int sum = 0;
-            System.out.println("at reduce");
-            //String outvalue = "time";
-            StringBuilder builder = new StringBuilder();
-            //while (values.hasNext()){
-                      //System.out.println(values.next().toString());
-                     builder.append('9');
-            //}
-            output.collect(key, new valueFormat(1l,"keroro"));
-        }
-
-
-    }
-
-
-
+                    finalput.set(sb.toString());
+                    output.collect(key, finalput);
+                    sb = new StringBuilder();
+                }
+            }
+        }  }
     public static void main(String[] args) throws Exception {
         JobConf conf = new JobConf(WordCount.class);
         conf.setJobName("wordcount");
