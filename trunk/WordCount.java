@@ -15,16 +15,16 @@ import org.apache.hadoop.util.*;
 
 public class WordCount {
     public static class valueFormat implements Writable{
-        public long offset;
+        public int offset;
         public String fileName;
 
-        public valueFormat(Long offset, String fileName){
+        public valueFormat(int offset, String fileName){
             this.offset=offset;
             this.fileName=fileName;
 
         }
         public valueFormat(){
-            this.offset=Long.valueOf(0);
+            this.offset=0;
             this.fileName=null;
         }
         public String getFileName() {
@@ -79,12 +79,12 @@ public class WordCount {
             System.out.println("ReadField, in line: " + line); // debug
             String[] rawIns = line.split(",");
             System.out.println("value:" + rawIns[1] + "-- offset" + rawIns[0]);
-            this.offset = (long) Integer.parseInt(rawIns[0]);
+            this.offset = Integer.parseInt(rawIns[0]);
             this.fileName = rawIns[1];
         }
     }
-    public static class WholeFileInputFormat extends FileInputFormat<NullWritable, Text> {
 
+    public static class WholeFileInputFormat extends FileInputFormat<NullWritable, Text> {
         @Override
         protected boolean isSplitable(FileSystem fs, Path filename) {
             return false;
@@ -95,9 +95,8 @@ public class WordCount {
             WholeFileRecordReader reader = new WholeFileRecordReader(inputSplit, entries);
             return reader;
         }
-
-
     }
+
     public static class WholeFileRecordReader implements RecordReader<NullWritable, Text> {
 
         private FileSplit fileSplit;
@@ -158,7 +157,6 @@ public class WordCount {
         public float getProgress() throws IOException {
             return processed ? 1.0f : 0.0f;
         }
-
     }
 
     public static class Map extends MapReduceBase implements Mapper<NullWritable, Text, Text, valueFormat > {
@@ -192,7 +190,7 @@ public class WordCount {
                 while ( !m.hitEnd() ) {
                     if (m.find() ) {
                         keyOut.set(line);
-                        valueOut.offset=Long.valueOf(m.end()-line.length());
+                        valueOut.offset=m.end()-line.length();
                         valueOut.fileName=currentFile;
                         System.out.println("map"+" "+keyOut+" "+valueOut.fileName+" "+valueOut.offset);
                         output.collect(keyOut, valueOut);
@@ -226,7 +224,9 @@ public class WordCount {
                     sb = new StringBuilder();
                 }
             }
-        }  }
+        }
+    }
+
     public static void main(String[] args) throws Exception {
         JobConf conf = new JobConf(WordCount.class);
         conf.setJobName("wordcount");
