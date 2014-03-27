@@ -73,10 +73,12 @@ public class valueFormat implements Writable {
     @Override
     public void readFields(DataInput dataInput) throws IOException {
         String line = dataInput.readLine();
+        int keep=0;
         System.out.println("ReadField, in line: " + line); // debug
         String[] rawIns = line.split(",");
         System.out.println("value:" + rawIns[1] + "-- offset" + rawIns[0]);
-        this.offset = Integer.parseInt(rawIns[0]);
+        keep=Integer.parseInt(rawIns[0]);
+        this.offset = keep;
         this.fileName = rawIns[1];
     }
 }
