@@ -27,28 +27,46 @@ public class WordCount {
         }
         @Override
         public String toString() {
-            return this.fileName + "\t" + this.offset;
+            return "("+this.fileName + " , " + this.offset+")";
         }
-        public void merge(valueFormat other) {
 
-            this.offset +=other.offset;
-
-        }
 
 
 
         @Override
         public void write(DataOutput dataOutput) throws IOException {
             //To change body of implemented methods use File | Settings | File Templates.
+            System.out.println("write"+offset+fileName);
+          /*  for(int i=0; i<offset.toString().length();i++){
+                dataOutput.writeChar(offset.toString().charAt(i));
+                System.out.print(offset.toString().charAt(i));
+                if(i==(offset.toString().length()-1)){
+                    dataOutput.writeChar(',');
+                    System.out.print(',');
+                }
+            }   */
             dataOutput.writeLong(offset);
+
+            /*for (int j=0;j<fileName.length();j++){
+                dataOutput.writeChar(fileName.charAt(j));
+                System.out.print(fileName.charAt(j));
+            }  */
             dataOutput.writeChars(fileName);
         }
 
         @Override
         public void readFields(DataInput dataInput) throws IOException {
             //To change body of implemented methods use File | Settings | File Templates.
+            //String temp;
+           // String[] temp2 =new String[2];
+           // temp=dataInput.readLine();
+            //temp2=temp.split(",");
+            //offset=(long)Integer.parseInt(temp2[0]);
             offset=dataInput.readLong();
+            System.out.print(offset.toString());
+            //fileName=temp2[1];
             fileName=dataInput.readUTF();
+            System.out.println(fileName);
         }
     }
     public static class WholeFileInputFormat extends FileInputFormat<NullWritable, Text> {
@@ -174,17 +192,19 @@ public class WordCount {
         }
     }
     public static class Reduce extends MapReduceBase implements Reducer<Text, valueFormat, Text, valueFormat> {
+
         valueFormat outValue = new valueFormat();
+
         public void reduce(Text key, Iterator<valueFormat> values, OutputCollector<Text, valueFormat> output, Reporter reporter) throws IOException {
             //  int sum = 0;
             System.out.println("at reduce");
             //String outvalue = "time";
             StringBuilder builder = new StringBuilder();
-            while (values.hasNext()){
-                     System.out.println(outValue.fileName);
-                     outValue.merge(values.next());
-            }
-            output.collect(key, outValue);
+            //while (values.hasNext()){
+                      //System.out.println(values.next().toString());
+                     builder.append('9');
+            //}
+            output.collect(key, new valueFormat(1l,"keroro"));
         }
 
 
