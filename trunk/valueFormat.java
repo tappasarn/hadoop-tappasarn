@@ -14,6 +14,7 @@ import java.io.IOException;
 public class valueFormat implements Writable {
     public int offset;
     public String fileName;
+    public String StringOffset;
 
 
     public valueFormat(int offset, String fileName){
@@ -24,13 +25,17 @@ public class valueFormat implements Writable {
     public valueFormat(){
         this.offset=0;
         this.fileName=null;
+        this.StringOffset=null;
     }
     public String getFileName() {
         return fileName;
     }
 
-    public long getOffset() {
+    public int getOffset() {
         return offset;
+    }
+    public String getStringOffset(){
+        return StringOffset;
     }
 
     @Override
@@ -41,16 +46,18 @@ public class valueFormat implements Writable {
     public void write(DataOutput dataOutput) throws IOException {
         //To change body of implemented methods use File | Settings | File Templates.
         System.out.println("write"+offset+fileName);
-        dataOutput.writeChars(String.valueOf(offset));
-        //String offsetStr = String.valueOf(offset);
-        //for(int j=0; j<offsetStr.length(); j++) {
-          //  dataOutput.write( offsetStr.charAt(j) );
-        //}
+        //dataOutput.writeChars(String.valueOf(offset));
+        String offsetStr = String.valueOf(offset);
+        for(int j=0; j<offsetStr.length(); j++) {
+            dataOutput.write( offsetStr.charAt(j) );
+        }
 
         dataOutput.writeChar(',');
 
-        dataOutput.writeChars(fileName);
-
+        //dataOutput.writeChars(fileName);
+        for(int j=0; j<fileName.length(); j++) {
+            dataOutput.write( fileName.charAt(j) );
+        }
 
             /*
             //System.out.println("write"+offset+fileName);
@@ -79,9 +86,9 @@ public class valueFormat implements Writable {
         //int keep=0;
         System.out.println("ReadField, in line: " + line); // debug
         String[] rawIns = line.split(",");
-        System.out.println("value:" + rawIns[1] + "-- offset" + rawIns[0]);
+       // System.out.println("value:" + rawIns[1] + "-- offset" + rawIns[0]);
         //Integer.parseInt(rawIns[0]);
-        offset = Integer.parseInt(rawIns[0]);
+        StringOffset = rawIns[0];
         fileName = rawIns[1];
         System.out.println("readField"+offset+fileName+"END!!");
 
