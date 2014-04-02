@@ -42,7 +42,7 @@ public class Map extends MapReduceBase implements Mapper<IntWritable, Text, Text
         String region = value.toString();
         while((line = linereader.readLine()) != null) {
 
-            Pattern p = Pattern.compile(line);
+            Pattern p = Pattern.compile("\\b"+line);
             Matcher m = p.matcher(region);
             while ( !m.hitEnd() ) {
                 if (m.find() ) {
