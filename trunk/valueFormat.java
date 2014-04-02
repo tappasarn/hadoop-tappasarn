@@ -45,7 +45,7 @@ public class valueFormat implements Writable {
     @Override
     public void write(DataOutput dataOutput) throws IOException {
         //To change body of implemented methods use File | Settings | File Templates.
-        System.out.println("write"+offset+fileName);
+        //System.out.println("write"+offset+fileName);
         //dataOutput.writeChars(String.valueOf(offset));
         String offsetStr = String.valueOf(offset);
         for(int j=0; j<offsetStr.length(); j++) {
@@ -84,13 +84,13 @@ public class valueFormat implements Writable {
     public void readFields(DataInput dataInput) throws IOException {
         String line = dataInput.readLine();
         //int keep=0;
-        System.out.println("ReadField, in line: " + line); // debug
+       // System.out.println("ReadField, in line: " + line); // debug
         String[] rawIns = line.split(",");
        // System.out.println("value:" + rawIns[1] + "-- offset" + rawIns[0]);
         //Integer.parseInt(rawIns[0]);
         StringOffset = rawIns[0].trim();
         fileName = rawIns[1];
-        System.out.println("readField"+offset+fileName+"END!!");
+       // System.out.println("readField"+offset+fileName+"END!!");
 
         }
 

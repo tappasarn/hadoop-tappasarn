@@ -30,7 +30,7 @@ public class WordCount {
         conf.setInputFormat(WholeFileInputFormat.class);
         conf.setOutputFormat(TextOutputFormat.class);
 
-        DistributedCache.addCacheFile(new URI("./stringlist.txt"), conf);
+        DistributedCache.addCacheFile(new URI("./query.dat"), conf);
 
         FileInputFormat.setInputPaths(conf, new Path(args[0]));
         FileOutputFormat.setOutputPath(conf, new Path(args[1]));
