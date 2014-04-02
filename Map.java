@@ -48,7 +48,7 @@ public class Map extends MapReduceBase implements Mapper<IntWritable, Text, Text
                 if (m.find() ) {
 
                     keyOut.set(line);
-                    valueOut.offset=m.end()-line.length()+addingoffset;
+                    valueOut.offset=addingoffset;
                     valueOut.fileName=currentFile;
                     //System.out.println("map"+" "+keyOut+" "+valueOut.fileName+" "+valueOut.offset);
                     output.collect(keyOut, valueOut);
