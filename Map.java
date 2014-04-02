@@ -44,7 +44,7 @@ public class Map extends MapReduceBase implements Mapper<IntWritable, Text, Text
 
             Pattern p = Pattern.compile("\\b"+line);
             Matcher m = p.matcher(region);
-            while ( !m.hitEnd() ) {
+            //while ( !m.hitEnd() ) {
                 if (m.find() ) {
 
                     keyOut.set(line);
@@ -54,7 +54,7 @@ public class Map extends MapReduceBase implements Mapper<IntWritable, Text, Text
                     output.collect(keyOut, valueOut);
 
                 }
-            }
+            //}
 
         }
 
