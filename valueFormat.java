@@ -88,7 +88,7 @@ public class valueFormat implements Writable {
         String[] rawIns = line.split(",");
        // System.out.println("value:" + rawIns[1] + "-- offset" + rawIns[0]);
         //Integer.parseInt(rawIns[0]);
-        StringOffset = rawIns[0];
+        StringOffset = rawIns[0].trim();
         fileName = rawIns[1];
         System.out.println("readField"+offset+fileName+"END!!");
 

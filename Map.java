@@ -1,3 +1,4 @@
+import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.NullWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapred.*;
@@ -13,7 +14,7 @@ import java.util.regex.Pattern;
  * Time: 8:56 PM
  * To change this template use File | Settings | File Templates.
  */
-public class Map extends MapReduceBase implements Mapper<NullWritable, Text, Text, valueFormat > {
+public class Map extends MapReduceBase implements Mapper<IntWritable, Text, Text, valueFormat > {
     private File stringListFile;
     private Text keyOut = new Text();
     valueFormat valueOut = new valueFormat();
@@ -26,26 +27,28 @@ public class Map extends MapReduceBase implements Mapper<NullWritable, Text, Tex
     }
 
     @Override
-    public void map(NullWritable key, Text value, OutputCollector<Text, valueFormat> output, Reporter reporter) throws IOException {
+    public void map(IntWritable key, Text value, OutputCollector<Text, valueFormat> output, Reporter reporter) throws IOException {
 
 
         // Debug
-        System.out.println(key + ":" + value +":" + value.getLength());
+    //    System.out.println(key + ":" + value +":" + value.getLength());
 
         // Get name
         currentFile = ((FileSplit)reporter.getInputSplit()).getPath().getName();
 
         BufferedReader linereader = new BufferedReader(new InputStreamReader(new FileInputStream(stringListFile)));
         String line;
+        int addingoffset = key.get();
         String region = value.toString();
         while((line = linereader.readLine()) != null) {
+
             Pattern p = Pattern.compile(line);
             Matcher m = p.matcher(region);
             while ( !m.hitEnd() ) {
                 if (m.find() ) {
 
                     keyOut.set(line);
-                    valueOut.offset=m.end()-line.length();
+                    valueOut.offset=m.end()-line.length()+addingoffset;
                     valueOut.fileName=currentFile;
                     System.out.println("map"+" "+keyOut+" "+valueOut.fileName+" "+valueOut.offset);
                     output.collect(keyOut, valueOut);
