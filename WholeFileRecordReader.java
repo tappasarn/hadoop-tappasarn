@@ -11,7 +11,7 @@ import org.apache.hadoop.mapred.InputSplit;
 import org.apache.hadoop.mapred.JobConf;
 import org.apache.hadoop.mapred.RecordReader;
 
-import java.io.IOException;
+import java.io.*;
 
 /**
  * Created with IntelliJ IDEA.
@@ -21,18 +21,22 @@ import java.io.IOException;
  * To change this template use File | Settings | File Templates.
  */
 public class WholeFileRecordReader implements RecordReader<IntWritable, Text> {
-
+    private String writtenFileName="writtenFileName";
     private FileSplit fileSplit;
     private Configuration conf;
     private IntWritable startingoffset = new IntWritable();
     private Text value = new Text();
     private int processed = 0;
+    int fileLength=0;
     FSDataInputStream in;
-    public WholeFileRecordReader(InputSplit inputSplit, JobConf entries){
+    RandomAccessFile inRanAccessFile;
+    public WholeFileRecordReader(InputSplit inputSplit, JobConf entries) throws IOException {
         fileSplit=(FileSplit)inputSplit;
+        byte[] fileTemp = new byte[4096];
         conf=(Configuration)entries;
         Path file = fileSplit.getPath();
         FileSystem fs = null;
+        FileOutputStream fileOutputStream =new FileOutputStream(writtenFileName);
         try {
             fs = file.getFileSystem(conf);
         } catch (IOException e) {
@@ -47,25 +51,39 @@ public class WholeFileRecordReader implements RecordReader<IntWritable, Text> {
             e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
         }
 
+        try {
+            while((fileLength=in.read(fileTemp,0,fileTemp.length))!=-1){
+                fileOutputStream.write(fileTemp,0,fileLength);
+                fileOutputStream.flush();
+
+            }
+            fileOutputStream.close();
+        } catch (IOException e) {
+            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+        }
+       in.close();
+       fileOutputStream.close();
+       inRanAccessFile = new RandomAccessFile(new File(writtenFileName), "r");
+
     }
 
     @Override
     public boolean next(IntWritable nullWritable, Text bytesWritable) throws IOException {
-         if (processed<=(fileSplit.getLength()-2)) {
-               in.seek(processed);
-              System.out.println(processed);
+        if (processed<=(fileSplit.getLength()-100)) {
+            inRanAccessFile.seek(processed);
+            //System.out.println(processed);
 
-               byte[] contents = new byte[2];
-               in.read(contents, 0, 2);
-              startingoffset.set(processed);
-              String contentString = new String(contents);
-              value.set(contentString);
-              processed = processed+1;
-              return true;
+            byte[] contents = new byte[100];
+            inRanAccessFile.read(contents, 0, 100);
+            startingoffset.set(processed);
+            String contentString = new String(contents);
+            value.set(contentString);
+            processed = processed+1;
+            return true;
         }
         else{
-        IOUtils.closeStream(in);
-        return false;}
+            IOUtils.closeStream(inRanAccessFile);
+            return false;}
     }
 
         /*if (!processed) {

@@ -33,7 +33,7 @@ public class Reduce extends MapReduceBase implements Reducer<Text, valueFormat, 
             // if sb.length more than limit , collect once
             if(sb.length() > 1048576) {
                 // Debug
-                System.out.println("Reduce Output: " + key + "<>" + sb.toString());
+               // System.out.println("Reduce Output: " + key + "<>" + sb.toString());
 
                 finalput.set(sb.toString());
                 output.collect(key, finalput);

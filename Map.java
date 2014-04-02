@@ -23,7 +23,7 @@ public class Map extends MapReduceBase implements Mapper<IntWritable, Text, Text
 
     @Override
     public void configure(JobConf job) {
-        stringListFile = new File("./stringlist.txt");
+        stringListFile = new File("./query.dat");
     }
 
     @Override
@@ -50,7 +50,7 @@ public class Map extends MapReduceBase implements Mapper<IntWritable, Text, Text
                     keyOut.set(line);
                     valueOut.offset=m.end()-line.length()+addingoffset;
                     valueOut.fileName=currentFile;
-                    System.out.println("map"+" "+keyOut+" "+valueOut.fileName+" "+valueOut.offset);
+                    //System.out.println("map"+" "+keyOut+" "+valueOut.fileName+" "+valueOut.offset);
                     output.collect(keyOut, valueOut);
 
                 }
