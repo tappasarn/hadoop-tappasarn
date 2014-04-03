@@ -77,7 +77,7 @@ public class WholeFileRecordReader implements RecordReader<IntWritable, Text> {
             inRanAccessFile.read(contents, 0, 524387);
             startingoffset.set(processed);
             String contentString = new String(contents);
-            value.set(contentString.trim());
+            value.set(contentString);
             processed = processed+524288;
             return true;
         }
