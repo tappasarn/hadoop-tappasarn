@@ -31,7 +31,7 @@ public class Map extends MapReduceBase implements Mapper<IntWritable, Text, Text
 
 
         // Debug
-    //    System.out.println(key + ":" + value +":" + value.getLength());
+        //    System.out.println(key + ":" + value +":" + value.getLength());
 
         // Get name
         currentFile = ((FileSplit)reporter.getInputSplit()).getPath().getName();
@@ -39,8 +39,8 @@ public class Map extends MapReduceBase implements Mapper<IntWritable, Text, Text
         BufferedReader linereader = new BufferedReader(new InputStreamReader(new FileInputStream(stringListFile)));
         String line;
         int addingoffset = key.get();
-        String region = value.toString().substring(0,16777216);
-        String region1 = value.toString().substring(16777216).trim();
+        String region = value.toString().substring(0,524288);
+        String region1 = value.toString().substring(524288).trim();
         while((line = linereader.readLine()) != null) {
             Pattern p = Pattern.compile(line.charAt(0)+"(?="+line.substring(1)+")");
             //Pattern p = Pattern.compile("\\b"+line);
@@ -48,33 +48,33 @@ public class Map extends MapReduceBase implements Mapper<IntWritable, Text, Text
             m.reset();
             while ( !m.hitEnd() ) {
                 if (m.find() ) {
-
-                    keyOut.set(line);
+                    keyOut.set(currentFile+","+line);
+                    //keyOut.set(line);
                     valueOut.offset=addingoffset+m.start();//m.end()-line.length();
                     valueOut.fileName=currentFile;
                     //System.out.println("map"+" "+keyOut+" "+valueOut.fileName+" "+valueOut.offset);
                     output.collect(keyOut, valueOut);
                 }
-             //-------------------------------------------------------------------
+                //-------------------------------------------------------------------
 
 
-                }
+            }
             //}
             if(region.length()!=1){ //ถ้าเท่ากับ1อาจมีการนับซ้ำ
-            Pattern p1 = Pattern.compile("\\b"+line);
-            //Pattern p = Pattern.compile("\\b"+line);
-            Matcher m1 = p1.matcher(region1);
-            m.reset();
-            //while ( !m.hitEnd() ) {
-            if (m1.find() ) {
+                Pattern p1 = Pattern.compile("\\b"+line);
+                //Pattern p = Pattern.compile("\\b"+line);
+                Matcher m1 = p1.matcher(region1);
+                m.reset();
+                //while ( !m.hitEnd() ) {
+                if (m1.find() ) {
 
-                keyOut.set(line);
-                valueOut.offset=addingoffset+m1.start();//m1.end()-line.length();
-                valueOut.fileName=currentFile;
-                //System.out.println("map"+" "+keyOut+" "+valueOut.fileName+" "+valueOut.offset);
-                output.collect(keyOut, valueOut);
+                    keyOut.set(currentFile+","+line);
+                    valueOut.offset=addingoffset+m1.start();//m1.end()-line.length();
+                    valueOut.fileName=currentFile;
+                    //System.out.println("map"+" "+keyOut+" "+valueOut.fileName+" "+valueOut.offset);
+                    output.collect(keyOut, valueOut);
 
-            }    }
+                }    }
 
-    }
-}    }
+        }
+    }    }
