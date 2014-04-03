@@ -59,6 +59,7 @@ public class Map extends MapReduceBase implements Mapper<IntWritable, Text, Text
 
                 }
             //}
+            if(region.length()!=1){ //ถ้าเท่ากับ1อาจมีการนับซ้ำ
             Pattern p1 = Pattern.compile("\\b"+line);
             //Pattern p = Pattern.compile("\\b"+line);
             Matcher m1 = p1.matcher(region1);
@@ -71,7 +72,7 @@ public class Map extends MapReduceBase implements Mapper<IntWritable, Text, Text
                 //System.out.println("map"+" "+keyOut+" "+valueOut.fileName+" "+valueOut.offset);
                 output.collect(keyOut, valueOut);
 
-            }
+            }    }
 
     }
 }    }
