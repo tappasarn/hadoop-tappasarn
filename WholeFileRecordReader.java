@@ -61,24 +61,24 @@ public class WholeFileRecordReader implements RecordReader<IntWritable, Text> {
         } catch (IOException e) {
             e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
         }
-       in.close();
-       fileOutputStream.close();
-       inRanAccessFile = new RandomAccessFile(new File(writtenFileName), "r");
+        in.close();
+        fileOutputStream.close();
+        inRanAccessFile = new RandomAccessFile(new File(writtenFileName), "r");
 
     }
 
     @Override
     public boolean next(IntWritable nullWritable, Text bytesWritable) throws IOException {
-        if (processed<=(fileSplit.getLength()-16777216)) {
+        if (processed<=(fileSplit.getLength()-524288)) {
             inRanAccessFile.seek(processed); //important for bug fixing
             //System.out.println(processed);
 
-            byte[] contents = new byte[16777315];     //524288+99
-            inRanAccessFile.read(contents, 0, 16777315);
+            byte[] contents = new byte[524387];     //524288+99
+            inRanAccessFile.read(contents, 0, 524387);
             startingoffset.set(processed);
             String contentString = new String(contents);
             value.set(contentString);
-            processed = processed+16777216;
+            processed = processed+524288;
             return true;
         }
         else{
