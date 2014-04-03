@@ -39,17 +39,18 @@ public class Map extends MapReduceBase implements Mapper<IntWritable, Text, Text
         BufferedReader linereader = new BufferedReader(new InputStreamReader(new FileInputStream(stringListFile)));
         String line;
         int addingoffset = key.get();
-        String region = value.toString().substring(0,524387);
+        String region = value.toString().substring(0,524288);
         String region1 = value.toString().substring(524288).trim();
         while((line = linereader.readLine()) != null) {
-            Pattern p = Pattern.compile(line);
+            Pattern p = Pattern.compile(line.charAt(0)+"(?="+line.substring(1)+")");
             //Pattern p = Pattern.compile("\\b"+line);
             Matcher m = p.matcher(region);
+            m.reset();
             while ( !m.hitEnd() ) {
                 if (m.find() ) {
 
                     keyOut.set(line);
-                    valueOut.offset=addingoffset+m.end()-line.length();
+                    valueOut.offset=addingoffset+m.start();//m.end()-line.length();
                     valueOut.fileName=currentFile;
                     //System.out.println("map"+" "+keyOut+" "+valueOut.fileName+" "+valueOut.offset);
                     output.collect(keyOut, valueOut);
@@ -63,11 +64,12 @@ public class Map extends MapReduceBase implements Mapper<IntWritable, Text, Text
             Pattern p1 = Pattern.compile("\\b"+line);
             //Pattern p = Pattern.compile("\\b"+line);
             Matcher m1 = p1.matcher(region1);
+            m.reset();
             //while ( !m.hitEnd() ) {
             if (m1.find() ) {
 
                 keyOut.set(line);
-                valueOut.offset=addingoffset+m1.end()-line.length();
+                valueOut.offset=addingoffset+m1.start();//m1.end()-line.length();
                 valueOut.fileName=currentFile;
                 //System.out.println("map"+" "+keyOut+" "+valueOut.fileName+" "+valueOut.offset);
                 output.collect(keyOut, valueOut);
