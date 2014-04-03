@@ -19,29 +19,33 @@ public class Reduce extends MapReduceBase implements Reducer<Text, valueFormat, 
         StringBuilder sb =new StringBuilder();
         Text finalput = new Text();
         valueFormat values2 =new valueFormat();
-
+        Text key2 =new Text();
+        String tempKey2;
         while (values.hasNext()) {
             //curValue = values.next();
             values2=values.next();
-            sb.append('(');
+            sb.append(',');
             sb.append(values2.getStringOffset());
 
-            sb.append(',');
-            sb.append(values2.getFileName());
-            sb.append(") ");
+            //sb.append(',');
+            //sb.append(values2.getFileName());
+            //sb.append(") ");
 
             // if sb.length more than limit , collect once
             if(sb.length() > 1048576) {
                 // Debug
                // System.out.println("Reduce Output: " + key + "<>" + sb.toString());
-
+                tempKey2=values2.getFileName()+","+key;
+                key2.set(tempKey2);
                 finalput.set(sb.toString());
-                output.collect(key, finalput);
+                output.collect(key2, finalput);
                 sb = new StringBuilder();
             }
 
         }
+        tempKey2=values2.getFileName()+","+key;
+        key2.set(tempKey2);
         finalput.set(sb.toString());
-        output.collect(key, finalput);
+        output.collect(key2, finalput);
     }
 }
