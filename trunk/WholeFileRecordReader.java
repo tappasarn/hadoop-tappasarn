@@ -69,16 +69,16 @@ public class WholeFileRecordReader implements RecordReader<IntWritable, Text> {
 
     @Override
     public boolean next(IntWritable nullWritable, Text bytesWritable) throws IOException {
-        if (processed<=(fileSplit.getLength()-100)) {
-            inRanAccessFile.seek(processed);
+        if (processed<=(fileSplit.getLength()-524288)) {
+            inRanAccessFile.seek(processed); //important for bug fixing
             //System.out.println(processed);
 
-            byte[] contents = new byte[100];
-            inRanAccessFile.read(contents, 0, 100);
+            byte[] contents = new byte[524387];     //524288+99
+            inRanAccessFile.read(contents, 0, 524387);
             startingoffset.set(processed);
             String contentString = new String(contents);
-            value.set(contentString);
-            processed = processed+1;
+            value.set(contentString.trim());
+            processed = processed+524288;
             return true;
         }
         else{
