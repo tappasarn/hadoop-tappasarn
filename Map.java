@@ -40,7 +40,7 @@ public class Map extends MapReduceBase implements Mapper<IntWritable, Text, Text
         String line;
         int addingoffset = key.get();
         String region = value.toString().substring(0,524288);
-        String region1 = value.toString().substring(524288).trim();
+        String region1 = value.toString().substring(524287).trim();//end of region-1
         while((line = linereader.readLine()) != null) {
             Pattern p = Pattern.compile(line.charAt(0)+"(?="+line.substring(1)+")");
             //Pattern p = Pattern.compile("\\b"+line);
