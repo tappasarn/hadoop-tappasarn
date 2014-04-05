@@ -54,7 +54,7 @@ public class WholeFileInputFormat extends FileInputFormat<IntWritable, Text>  {
                 }
                 if (isSplitable(fs, path)) {
                     long blockSize = file.getBlockSize();
-                    long splitSize = 524288;//computeSplitSize(goalSize, minSize, blockSize);
+                    long splitSize = 16777216;//computeSplitSize(goalSize, minSize, blockSize);
 
                     long bytesRemaining = length;
                     while (((double) bytesRemaining)/splitSize > SPLIT_SLOP) {
