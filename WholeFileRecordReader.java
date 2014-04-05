@@ -46,7 +46,7 @@ public class WholeFileRecordReader implements RecordReader<IntWritable, Text> {
                 in = fs.open(file);
                 //need to fix here !!!
                 in.seek(fileSplit.getStart());//check class FileSplit method getStart
-                if((int)fileSplit.getStart()==524288){IOUtils.readFully(in, contents, 0, contents.length-99);}
+                if((int)fileSplit.getStart()==1056964608){IOUtils.readFully(in, contents, 0, contents.length-99);}
                 else{
                     IOUtils.readFully(in, contents, 0, contents.length);}
 
