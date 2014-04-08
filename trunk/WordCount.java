@@ -21,7 +21,7 @@ public class WordCount {
         conf.setJobName("wordcount");
 
         conf.setMapOutputKeyClass(Text.class);
-        conf.setMapOutputValueClass(valueFormat.class);
+        conf.setMapOutputValueClass(Text.class);
 
         conf.setMapperClass(Map.class);
         //conf.setCombinerClass(Reduce.class);
@@ -29,11 +29,12 @@ public class WordCount {
 
         conf.setInputFormat(WholeFileInputFormat.class);
         conf.setOutputFormat(TextOutputFormat.class);
-
+        conf.set("mapreduce.output.textoutputformat.separator", ",");
         DistributedCache.addCacheFile(new URI("./query.dat"), conf);
 
         FileInputFormat.setInputPaths(conf, new Path(args[0]));
         FileOutputFormat.setOutputPath(conf, new Path(args[1]));
+
 
         JobClient.runJob(conf);
     }

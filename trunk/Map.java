@@ -14,10 +14,10 @@ import java.util.regex.Pattern;
  * Time: 8:56 PM
  * To change this template use File | Settings | File Templates.
  */
-public class Map extends MapReduceBase implements Mapper<IntWritable, Text, Text, valueFormat > {
+public class Map extends MapReduceBase implements Mapper<IntWritable, Text, Text, Text > {
     private File stringListFile;
     private Text keyOut = new Text();
-    valueFormat valueOut = new valueFormat();
+    Text valueOut = new Text();
     // private IntWritable valueOut = new IntWritable(1);
     private String currentFile;
 
@@ -27,7 +27,7 @@ public class Map extends MapReduceBase implements Mapper<IntWritable, Text, Text
     }
 
     @Override
-    public void map(IntWritable key, Text value, OutputCollector<Text, valueFormat> output, Reporter reporter) throws IOException {
+    public void map(IntWritable key, Text value, OutputCollector<Text, Text> output, Reporter reporter) throws IOException {
 
 
         // Debug
@@ -50,8 +50,8 @@ public class Map extends MapReduceBase implements Mapper<IntWritable, Text, Text
                 if (m.find() ) {
                     keyOut.set(currentFile+","+line);
                     //keyOut.set(line);
-                    valueOut.offset=addingoffset+m.start();//m.end()-line.length();
-                    valueOut.fileName=currentFile;
+                    valueOut.set(String.valueOf(addingoffset+m.start()));//m.end()-line.length();
+                    //valueOut.fileName=currentFile;
                     //System.out.println("map"+" "+keyOut+" "+valueOut.fileName+" "+valueOut.offset);
                     output.collect(keyOut, valueOut);
                 }
@@ -60,7 +60,7 @@ public class Map extends MapReduceBase implements Mapper<IntWritable, Text, Text
 
             }
             //}
-            if(region.length()!=1){ //ถ้าเท่ากับ1อาจมีการนับซ้ำ
+            if(region1.length()!=1){ //ถ้าเท่ากับ1อาจมีการนับซ้ำ
                 Pattern p1 = Pattern.compile("\\b"+line);
                 //Pattern p = Pattern.compile("\\b"+line);
                 Matcher m1 = p1.matcher(region1);
@@ -69,8 +69,9 @@ public class Map extends MapReduceBase implements Mapper<IntWritable, Text, Text
                 if (m1.find() ) {
 
                     keyOut.set(currentFile+","+line);
-                    valueOut.offset=addingoffset+m1.start();//m1.end()-line.length();
-                    valueOut.fileName=currentFile;
+                    valueOut.set(String.valueOf(addingoffset+m1.start()));
+                    //valueOut.offset=addingoffset+m1.start();//m1.end()-line.length();
+                    //valueOut.fileName=currentFile;
                     //System.out.println("map"+" "+keyOut+" "+valueOut.fileName+" "+valueOut.offset);
                     output.collect(keyOut, valueOut);
 
