@@ -14,17 +14,18 @@ import java.util.Iterator;
  * Time: 8:56 PM
  * To change this template use File | Settings | File Templates.
  */
-public class Reduce extends MapReduceBase implements Reducer<Text, valueFormat, Text, Text> {
-    public void reduce(Text key, Iterator<valueFormat> values, OutputCollector<Text, Text> output, Reporter reporter) throws IOException {
+public class Reduce extends MapReduceBase implements Reducer<Text, Text, Text, Text> {
+    public void reduce(Text key, Iterator<Text> values, OutputCollector<Text, Text> output, Reporter reporter) throws IOException {
         StringBuilder sb =new StringBuilder();
         Text finalput = new Text();
-        valueFormat values2 =new valueFormat();
-
+        //valueFormat values2 =new valueFormat();
+        int separatorCount=0;
         while (values.hasNext()) {
             //curValue = values.next();
-            values2=values.next();
-            sb.append(',');
-            sb.append(values2.getStringOffset());
+            //values2=values.next();
+            if(separatorCount!=0)sb.append(',');
+            sb.append(values.next());
+            separatorCount=1;
 
             //sb.append(',');
             //sb.append(values2.getFileName());
